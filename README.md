@@ -1,8 +1,9 @@
 <div align="center">
   <img src="assets/invidious-colored-vector.svg" width="192" height="192" alt="Invidious logo">
   <h1>Invidious</h1>
-
-  <a href="https://www.gnu.org/licenses/agpl-3.0.en.html">
+ <h2>this is a fork for GLOBE and Poke. </h2>
+ 
+ <a href="https://www.gnu.org/licenses/agpl-3.0.en.html">
     <img alt="License: AGPLv3" src="https://shields.io/badge/License-AGPL%20v3-blue.svg">
   </a>
   <a href="https://github.com/iv-org/invidious/actions">

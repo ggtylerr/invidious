@@ -1,8 +1,7 @@
 <div align="center">
   <img src="assets/invidious-colored-vector.svg" width="192" height="192" alt="Invidious logo">
   <h1>Invidious</h1>
- <h2>this is a fork for GLOBE and Poke. </h2>
- 
+  
  <a href="https://www.gnu.org/licenses/agpl-3.0.en.html">
     <img alt="License: AGPLv3" src="https://shields.io/badge/License-AGPL%20v3-blue.svg">
   </a>
@@ -26,7 +25,7 @@
     <img alt="Awesome Humane Tech" src="https://raw.githubusercontent.com/humanetech-community/awesome-humane-tech/main/humane-tech-badge.svg?sanitize=true">
   </a>
 
-  <h3>An open source alternative front-end to YouTube</h3>
+  <h3>this is a fork for GLOBE and Poke :3 </h3>
 
   <a href="https://invidious.io/">Website</a>
   &nbsp;•&nbsp;

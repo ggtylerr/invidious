@@ -25,7 +25,7 @@
     <img alt="Awesome Humane Tech" src="https://raw.githubusercontent.com/humanetech-community/awesome-humane-tech/main/humane-tech-badge.svg?sanitize=true">
   </a>
 
-  <h3>this is a fork for GLOBE and Poke :3 </h3>
+  <h3>this is a fork for [Project GLOBE](https://github.com/ggtylerr/globe) and [Poke](https://codeberg.org/ashley/poke) :3 </h3>
 
   <a href="https://invidious.io/">Website</a>
   &nbsp;•&nbsp;

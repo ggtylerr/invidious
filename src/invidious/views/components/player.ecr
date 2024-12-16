@@ -1,5 +1,6 @@
 <video style="outline:none;width:100%;background-color:#000" playsinline poster="<%= thumbnail %>"
     id="player" class="on-video_player video-js player-style-<%= params.player_style %>"
+    preload="<% if params.preload %>auto<% else %>none<% end %>"
     <% if params.autoplay %>autoplay<% end %>
     <% if params.video_loop %>loop<% end %>
     <% if params.controls %>controls<% end %>>
@@ -21,6 +22,8 @@
                audio_streams.each_with_index do |fmt, i|
                 src_url  = "/latest_version?id=#{video.id}&itag=#{fmt["itag"]}"
                 src_url += "&local=true" if params.local
+                src_url = video.invidious_companion["baseUrl"].as_s + src_url + 
+                            "&check=#{invidious_companion_encrypt(video.id)}" if (!CONFIG.invidious_companion.empty?)
 
                 bitrate = fmt["bitrate"]
                 mimetype = HTML.escape(fmt["mimeType"].as_s)
@@ -33,8 +36,12 @@
                 <% end %>
             <% end %>
         <% else %>
-            <% if params.quality == "dash" %>
-                <source src="/api/manifest/dash/id/<%= video.id %>?local=true&unique_res=1" type='application/dash+xml' label="dash">
+            <% if params.quality == "dash"
+               src_url = "/api/manifest/dash/id/" + video.id + "?local=true&unique_res=1"
+               src_url = video.invidious_companion["baseUrl"].as_s + src_url +
+                            "&check=#{invidious_companion_encrypt(video.id)}" if (!CONFIG.invidious_companion.empty?)
+            %>
+                <source src="<%= src_url %>" type='application/dash+xml' label="dash">
             <% end %>
 
             <%
@@ -43,6 +50,8 @@
             fmt_stream.each_with_index do |fmt, i|
                 src_url  = "/latest_version?id=#{video.id}&itag=#{fmt["itag"]}"
                 src_url += "&local=true" if params.local
+                src_url = video.invidious_companion["baseUrl"].as_s + src_url +
+                            "&check=#{invidious_companion_encrypt(video.id)}" if (!CONFIG.invidious_companion.empty?)
 
                 quality = fmt["quality"]
                 mimetype = HTML.escape(fmt["mimeType"].as_s)

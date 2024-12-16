@@ -15,7 +15,7 @@ struct Video
   # NOTE: don't forget to bump this number if any change is made to
   # the `params` structure in videos/parser.cr!!!
   #
-  SCHEMA_VERSION = 2
+  SCHEMA_VERSION = 3
 
   property id : String
 
@@ -25,12 +25,6 @@ struct Video
 
   @[DB::Field(ignore: true)]
   @captions = [] of Invidious::Videos::Captions::Metadata
-
-  @[DB::Field(ignore: true)]
-  property adaptive_fmts : Array(Hash(String, JSON::Any))?
-
-  @[DB::Field(ignore: true)]
-  property fmt_stream : Array(Hash(String, JSON::Any))?
 
   @[DB::Field(ignore: true)]
   property description : String?
@@ -98,72 +92,24 @@ struct Video
 
   # Methods for parsing streaming data
 
-  def convert_url(fmt)
-    if cfr = fmt["signatureCipher"]?.try { |json| HTTP::Params.parse(json.as_s) }
-      sp = cfr["sp"]
-      url = URI.parse(cfr["url"])
-      params = url.query_params
-
-      LOGGER.debug("Videos: Decoding '#{cfr}'")
-
-      unsig = DECRYPT_FUNCTION.try &.decrypt_signature(cfr["s"])
-      params[sp] = unsig if unsig
+  def fmt_stream : Array(Hash(String, JSON::Any))
+    if formats = info.dig?("streamingData", "formats")
+      return formats
+        .as_a.map(&.as_h)
+        .sort_by! { |f| f["width"]?.try &.as_i || 0 }
     else
-      url = URI.parse(fmt["url"].as_s)
-      params = url.query_params
+      return [] of Hash(String, JSON::Any)
     end
-
-    n = DECRYPT_FUNCTION.try &.decrypt_nsig(params["n"])
-    params["n"] = n if n
-
-    if token = CONFIG.po_token
-      params["pot"] = token
-    end
-
-    params["host"] = url.host.not_nil!
-    if region = self.info["region"]?.try &.as_s
-      params["region"] = region
-    end
-
-    url.query_params = params
-    LOGGER.trace("Videos: new url is '#{url}'")
-
-    return url.to_s
-  rescue ex
-    LOGGER.debug("Videos: Error when parsing video URL")
-    LOGGER.trace(ex.inspect_with_backtrace)
-    return ""
   end
 
-  def fmt_stream
-    return @fmt_stream.as(Array(Hash(String, JSON::Any))) if @fmt_stream
-
-    fmt_stream = info.dig?("streamingData", "formats")
-      .try &.as_a.map &.as_h || [] of Hash(String, JSON::Any)
-
-    fmt_stream.each do |fmt|
-      fmt["url"] = JSON::Any.new(self.convert_url(fmt))
+  def adaptive_fmts : Array(Hash(String, JSON::Any))
+    if formats = info.dig?("streamingData", "adaptiveFormats")
+      return formats
+        .as_a.map(&.as_h)
+        .sort_by! { |f| f["width"]?.try &.as_i || 0 }
+    else
+      return [] of Hash(String, JSON::Any)
     end
-
-    fmt_stream.sort_by! { |f| f["width"]?.try &.as_i || 0 }
-    @fmt_stream = fmt_stream
-    return @fmt_stream.as(Array(Hash(String, JSON::Any)))
-  end
-
-  def adaptive_fmts
-    return @adaptive_fmts.as(Array(Hash(String, JSON::Any))) if @adaptive_fmts
-
-    fmt_stream = info.dig("streamingData", "adaptiveFormats")
-      .try &.as_a.map &.as_h || [] of Hash(String, JSON::Any)
-
-    fmt_stream.each do |fmt|
-      fmt["url"] = JSON::Any.new(self.convert_url(fmt))
-    end
-
-    fmt_stream.sort_by! { |f| f["width"]?.try &.as_i || 0 }
-    @adaptive_fmts = fmt_stream
-
-    return @adaptive_fmts.as(Array(Hash(String, JSON::Any)))
   end
 
   def video_streams
@@ -244,6 +190,10 @@ struct Video
         music_json["license"].as_s
       )
     }
+  end
+
+  def invidious_companion : Hash(String, JSON::Any)?
+    info["invidiousCompanion"]?.try &.as_h || {} of String => JSON::Any
   end
 
   # Macros defining getters/setters for various types of data

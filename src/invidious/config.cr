@@ -13,6 +13,7 @@ struct ConfigPreferences
 
   property annotations : Bool = false
   property annotations_subscribed : Bool = false
+  property preload : Bool = true
   property autoplay : Bool = false
   property captions : Array(String) = ["", "", ""]
   property comments : Array(String) = ["youtube", ""]
@@ -54,8 +55,27 @@ struct ConfigPreferences
   end
 end
 
+struct HTTPProxyConfig
+  include YAML::Serializable
+
+  property user : String
+  property password : String
+  property host : String
+  property port : Int32
+end
+
 class Config
   include YAML::Serializable
+
+  class CompanionConfig
+    include YAML::Serializable
+
+    @[YAML::Field(converter: Preferences::URIConverter)]
+    property private_url : URI = URI.parse("")
+
+    @[YAML::Field(converter: Preferences::URIConverter)]
+    property public_url : URI = URI.parse("")
+  end
 
   # Number of threads to use for crawling videos from channels (for updating subscriptions)
   property channel_threads : Int32 = 1
@@ -66,6 +86,8 @@ class Config
   property output : String = "STDOUT"
   # Default log level, valid YAML values are ints and strings, see src/invidious/helpers/logger.cr
   property log_level : LogLevel = LogLevel::Info
+  # Enables colors in logs. Useful for debugging purposes
+  property colorize_logs : Bool = false
   # Database configuration with separate parameters (username, hostname, etc)
   property db : DBConfig? = nil
 
@@ -126,6 +148,8 @@ class Config
   property host_binding : String = "0.0.0.0"
   # Pool size for HTTP requests to youtube.com and ytimg.com (each domain has a separate pool of `pool_size`)
   property pool_size : Int32 = 100
+  # HTTP Proxy configuration
+  property http_proxy : HTTPProxyConfig? = nil
 
   # Use Innertube's transcripts API instead of timedtext for closed captions
   property use_innertube_for_captions : Bool = false
@@ -134,6 +158,12 @@ class Config
   property visitor_data : String? = nil
   # poToken for passing bot attestation
   property po_token : String? = nil
+
+  # Invidious companion
+  property invidious_companion : Array(CompanionConfig) = [] of CompanionConfig
+
+  # Invidious companion API key
+  property invidious_companion_key : String = ""
 
   # Saved cookies in "name1=value1; name2=value2..." format
   @[YAML::Field(converter: Preferences::StringToCookies)]
@@ -205,6 +235,24 @@ class Config
             end
         end
     {% end %}
+
+    if !config.invidious_companion.empty?
+      # invidious_companion and signature_server can't work together
+      if config.signature_server
+        puts "Config: You can not run inv_sig_helper and invidious_companion at the same time."
+        exit(1)
+      end
+      if config.invidious_companion_key.empty?
+        puts "Config: Please configure a key if you are using invidious companion."
+        exit(1)
+      elsif config.invidious_companion_key == "CHANGE_ME!!"
+        puts "Config: The value of 'invidious_companion_key' needs to be changed!!"
+        exit(1)
+      elsif config.invidious_companion_key.size < 16
+        puts "Config: The value of 'invidious_companion_key' needs to be a size of 16 or more."
+        exit(1)
+      end
+    end
 
     # HMAC_key is mandatory
     # See: https://github.com/iv-org/invidious/issues/3854

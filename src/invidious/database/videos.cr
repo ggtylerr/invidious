@@ -42,6 +42,7 @@ module Invidious::Database::Videos
   end
 
   def select(id : String) : Video?
+    return nil if CONFIG.disable_database_cache
     request = <<-SQL
       SELECT * FROM videos
       WHERE id = $1

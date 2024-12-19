@@ -172,6 +172,15 @@ class Config
   # Playlist length limit
   property playlist_length_limit : Int32 = 500
 
+  # Disables caching videos on the database.
+  # Note that this will make more requests to
+  # innertube so the probabilities of getting
+  # blocked are higher!
+  # It also increases the load time of a video
+  # so the CPU usage can be higher since it has to
+  # parse the video information again.
+  property disable_database_cache : Bool = false
+
   def disabled?(option)
     case disabled = CONFIG.disable_proxy
     when Bool

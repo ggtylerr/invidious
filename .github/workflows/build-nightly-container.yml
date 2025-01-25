@@ -62,7 +62,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository }}/invidious
+          images: ghcr.io/${{ github.repository }}
           tags: |
             type=sha,format=short,prefix={{date 'YYYY.MM.DD'}}-,enable=${{ github.ref == format('refs/heads/{0}', 'companion') }}
             type=raw,value=companion,enable=${{ github.ref == format('refs/heads/{0}', 'companion') }}
@@ -85,7 +85,7 @@ jobs:
         id: meta-arm64
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository }}/invidious
+          images: ghcr.io/${{ github.repository }}
           flavor: |
             suffix=-arm64
           tags: |

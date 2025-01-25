@@ -89,8 +89,8 @@ jobs:
           flavor: |
             suffix=-arm64
           tags: |
-            type=sha,format=short,prefix={{date 'YYYY.MM.DD'}}-,enable=${{ github.ref == format('refs/heads/{0}', 'master') }}
-            type=raw,value=master,enable=${{ github.ref == format('refs/heads/{0}', 'master') }}
+            type=sha,format=short,prefix={{date 'YYYY.MM.DD'}}-,enable=${{ github.ref == format('refs/heads/{0}', 'companion') }}
+            type=raw,value=master,enable=${{ github.ref == format('refs/heads/{0}', 'companion') }}
           labels: |
             ghcr.io/expires-after=12w
 

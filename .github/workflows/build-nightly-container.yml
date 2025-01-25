@@ -23,6 +23,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Replace paths in Dockerfiles
+        run: |
+          sed -i 's|/services/invidious/|/|g' docker/Dockerfile
+          sed -i 's|/services/invidious/|/|g' docker/Dockerfile.arm64
+
       - name: Install Crystal
         uses: crystal-lang/install-crystal@v1.8.2
         with:

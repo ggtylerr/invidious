@@ -1,9 +1,9 @@
-name: Build and release container directly from master
+name: Build and release container directly from companion
 
 on:
   push:
     branches:
-      - "master"
+      - "companion"
     paths-ignore:
       - "*.md"
       - LICENCE

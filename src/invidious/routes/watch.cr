@@ -328,7 +328,7 @@ module Invidious::Routes::Watch
       env.params.query["title"] = filename
       env.params.query["local"] = "true"
 
-      if (!CONFIG.invidious_companion.empty?)
+      if (CONFIG.invidious_companion.present?)
         video = get_video(video_id)
         invidious_companion = CONFIG.invidious_companion.sample
         return env.redirect "#{invidious_companion.public_url}/latest_version?#{env.params.query}"

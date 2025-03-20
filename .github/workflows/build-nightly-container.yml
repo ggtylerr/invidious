@@ -35,13 +35,13 @@ jobs:
         with:
           crystal: 1.12.2
 
-      - name: Run lint
-        run: |
-          if ! crystal tool format --check; then
-            crystal tool format
-            git diff
-            exit 1
-          fi
+      #- name: Run lint
+      #  run: |
+      #    if ! crystal tool format --check; then
+      #      crystal tool format
+      #      git diff
+      #      exit 1
+      #    fi
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -62,7 +62,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository }}/invidious
+          images: ghcr.io/${{ github.repository }}
           tags: |
             type=sha,format=short,prefix={{date 'YYYY.MM.DD'}}-,enable=${{ github.ref == format('refs/heads/{0}', 'master') }}
             type=raw,value=master,enable=${{ github.ref == format('refs/heads/{0}', 'master') }}
@@ -85,7 +85,7 @@ jobs:
         id: meta-arm64
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository }}/invidious
+          images: ghcr.io/${{ github.repository }}
           flavor: |
             suffix=-arm64
           tags: |

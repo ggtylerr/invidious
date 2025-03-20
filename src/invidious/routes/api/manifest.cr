@@ -8,6 +8,11 @@ module Invidious::Routes::API::Manifest
     id = env.params.url["id"]
     region = env.params.query["region"]?
 
+    if CONFIG.invidious_companion.present?
+      invidious_companion = CONFIG.invidious_companion.sample
+      return env.redirect "#{invidious_companion.public_url}/api/manifest/dash/id/#{id}?#{env.params.query}"
+    end
+
     # Since some implementations create playlists based on resolution regardless of different codecs,
     # we can opt to only add a source to a representation if it has a unique height within that representation
     unique_res = env.params.query["unique_res"]?.try { |q| (q == "true" || q == "1").to_unsafe }
@@ -63,17 +68,23 @@ module Invidious::Routes::API::Manifest
               # OTF streams aren't supported yet (See https://github.com/TeamNewPipe/NewPipe/issues/2415)
               next if !(fmt.has_key?("indexRange") && fmt.has_key?("initRange"))
 
+              audio_track = fmt["audioTrack"]?.try &.as_h? || {} of String => JSON::Any
+              lang = audio_track["id"]?.try &.as_s.split('.')[0] || "und"
+              is_default = audio_track.has_key?("audioIsDefault") ? audio_track["audioIsDefault"].as_bool : i == 0
+              displayname = audio_track["displayName"]?.try &.as_s || "Unknown"
+              bitrate = fmt["bitrate"]
+
               # Different representations of the same audio should be groupped into one AdaptationSet.
               # However, most players don't support auto quality switching, so we have to trick them
               # into providing a quality selector.
               # See https://github.com/iv-org/invidious/issues/3074 for more details.
-              xml.element("AdaptationSet", id: i, mimeType: mime_type, startWithSAP: 1, subsegmentAlignment: true, label: fmt["bitrate"].to_s + "k") do
+              xml.element("AdaptationSet", id: i, mimeType: mime_type, startWithSAP: 1, subsegmentAlignment: true, label: "#{displayname} [#{bitrate}k]", lang: lang) do
                 codecs = fmt["mimeType"].as_s.split("codecs=")[1].strip('"')
                 bandwidth = fmt["bitrate"].as_i
                 itag = fmt["itag"].as_i
                 url = fmt["url"].as_s
 
-                xml.element("Role", schemeIdUri: "urn:mpeg:dash:role:2011", value: i == 0 ? "main" : "alternate")
+                xml.element("Role", schemeIdUri: "urn:mpeg:dash:role:2011", value: is_default ? "main" : "alternate")
 
                 xml.element("Representation", id: fmt["itag"], codecs: codecs, bandwidth: bandwidth) do
                   xml.element("AudioChannelConfiguration", schemeIdUri: "urn:mpeg:dash:23003:3:audio_channel_configuration:2011",

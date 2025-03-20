@@ -71,8 +71,14 @@ db:
 ## communication between the companion and Invidious.
 ## And public_url is the public URL from which companion is listening
 ## to the requests from the user(s).
+##
+## If you are using a reverse proxy then you will probably need to
+## configure the public_url to be the same as the domain used for Invidious.
+## Also apply when used from an external IP address (without a domain).
+## Examples: https://MYINVIDIOUSDOMAIN or http://192.168.1.100:8282
+##
 ## Both parameter can have identical URL when Invidious is hosted in
-## an internal network or at home.
+## an internal network or at home or locally (localhost).
 ##
 ## Accepted values: "http(s)://<IP-HOSTNAME>:<Port>"
 ## Default: <none>
@@ -82,15 +88,18 @@ db:
 #    public_url: "http://localhost:8282"
 
 ##
-## API key for Invidious companion
+## API key for Invidious companion, used for securing the communication
+## between Invidious and Invidious companion.
 ## The size of the key needs to be more or equal to 16.
 ##
-## Needed when invidious_companion is configured
+## Note: This parameter is mandatory when Invidious companion is enabled
+## and should be a random string.
+## Such random string can be generated on linux with the following
+## command: `pwgen 16 1`
 ##
-## Accepted values: "http(s)://<IP-HOSTNAME>:<Port>"
+## Accepted values: a string
 ## Default: <none>
 ##
-
 #invidious_companion_key: "CHANGE_ME!!"
 
 #########################################

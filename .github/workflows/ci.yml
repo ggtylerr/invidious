@@ -57,12 +57,12 @@ jobs:
         shell: bash
 
       - name: Install Crystal
-        uses: crystal-lang/install-crystal@v1.8.0
+        uses: crystal-lang/install-crystal@v1.8.2
         with:
           crystal: ${{ matrix.crystal }}
 
       - name: Cache Shards
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ./lib
@@ -113,7 +113,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Build Docker ARM64 image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: docker/Dockerfile.arm64
@@ -136,12 +136,12 @@ jobs:
 
       - name: Install Crystal
         id: lint_step_install_crystal
-        uses: crystal-lang/install-crystal@v1.8.0
+        uses: crystal-lang/install-crystal@v1.8.2
         with:
           crystal: latest
 
       - name: Cache Shards
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ./lib
